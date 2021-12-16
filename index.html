@@ -17,21 +17,81 @@
         canvas.height = document.documentElement.clientHeight;
         var ctx = canvas.getContext('2d');
         ctx.fillStyle = 'green';
+        //画笔颜色
         ctx.strokeStyle = "none";
-        let painting = false;
-        canvas.onmousedown = () => {
-            painting = true;
+        //描边样式取消
+        ctx.lineWidth = 9;
+        //线条宽度设置
+        ctx.lineCap = 'round';
+        //线条边缘连接
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
         }
-        canvas.onmousemove = (e) => {
-            if (painting === true) {
-                ctx.beginPath();
-                ctx.arc(e.clientX, e.clientY, 8, 0, 2 * Math.PI);
-                ctx.fill();
+        //函数，连接两个点
+
+        var isTouchDevice = 'ontouchstart' in document.documentElement;
+        //识别设备类型
+        if (isTouchDevice) {
+            canvas.ontouchstart = (e) => {
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                lastPoint = [x, y];
             }
+            canvas.ontouchmove = (e) => {
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                drawLine(lastPoint[0], lastPoint[1], x, y);
+                lastPoint = [x, y];
+            }
+            //移动设备的代码
+        } else {
+            let painting = false;
+            //设置一个画图触发信号灯
+            canvas.onmousedown = (e) => {
+                painting = true;
+                lastPoint = [e.clientX, e.clientY];
+            }
+            //鼠标点下时，记录坐标，并开启画图触发信号
+            canvas.onmousemove = (e) => {
+                if (painting === true) {
+                    drawLine(lastPoint[0], lastPoint[1], e.clientX, e.clientY);
+                }
+                lastPoint = [e.clientX, e.clientY];
+            }
+            //迭代画线
+            canvas.onmouseup = () => {
+                painting = false;
+            }
+            //鼠标松开时，关闭画图信号
         }
-        canvas.onmouseup = () => {
-            painting = false;
-        }
+        // if (isTouchDevice) {
+        //     canvas.ontouchmove = (e) => {
+        //         let x = e.touches[0].clientX;
+        //         let y = e.touches[0].clientY;
+        //         ctx.beginPath();
+        //         ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        //         ctx.fill();
+
+        //     }
+        // } else {
+        //     canvas.onmousedown = () => {
+        //         painting = true;
+        //     }
+        //     canvas.onmousemove = (e) => {
+        //         if (painting === true) {
+        //             // ctx.beginPath();
+        //             // ctx.arc(e.clientX, e.clientY, 8, 0, 2 * Math.PI);
+        //             // ctx.fill();
+        //         }
+        //     }
+        //     canvas.onmouseup = () => {
+        //         painting = false;
+        //     }
+        // }
+        /*这些被注释掉的是不连续画点的代码*/
     </script>
 
 </body>
